@@ -1,0 +1,51 @@
+services:
+  api-getawey:
+    build: ./api-getawey
+    container_name: api-getawey
+    ports:
+      - "3000:3000"
+    depends_on:
+      - auth
+    volumes:
+      - ./api-getawey:/app
+      - '/app/node_modules'
+    networks:
+      - app-network
+  
+  auth:
+    build: ./auth
+    container_name: auth
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./auth:/app
+      - '/app/node_modules'
+    networks:
+      - app-network
+
+  rabbitmq:
+    container_name: rabbitmq-taskflow-express
+    image: rabbitmq:3.12.4-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - app-network
+
+  auth-db:
+    image: mongo:latest
+    container_name: auth-db
+    restart: always
+    ports:
+      - "27018:27017"
+    networks:
+      - app-network
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - ./auth-db:/data/db
+
+networks:
+  app-network:
+    driver: bridge
