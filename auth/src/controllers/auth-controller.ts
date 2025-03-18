@@ -1,56 +1,62 @@
-import { NextFunction, Request, Response } from "express";
-import { body, Meta, validationResult } from "express-validator";
 import crypto from "crypto";
 import * as grpc from "@grpc/grpc-js";
+import { z } from "zod";
 import User from "../models/User";
 import AuthService from "../services/auth-service";
+import { IUserProto } from "../types/IUserProto";
+import { RolesEnum } from "../enums/roles-enums";
+import mongoose from "mongoose";
 
-const validateRegisterUser = [
-   body('email')
-      .escape().trim()
-      .isEmail().withMessage('El email no es correcto'),
-   body('name')
-      .escape().trim()
-      .notEmpty().withMessage('Debes añadir un nombre'),
-   body('password')
-      .trim().escape() // Elimina espacios y escapa caracteres especiales
-      .isLength({ min: 6 }).withMessage('El password debe tener al menos 6 caracteres')
-      .notEmpty().withMessage('El password no puede estar vacío'),
-   body('confirm_password')
-      .trim().escape() // Elimina espacios y escapa caracteres especiales
-      .notEmpty().withMessage('El confirmar password no puede estar vacío')
-      .custom((value: string, { req }: Meta) => {
-         // Aquí accedemos correctamente a req.body.password
-         return value === req.body.password; // Comparar con el password en req.body
-
-      }).withMessage('El password es diferente'),
-
-   (req: Request, res: Response, next: NextFunction) => {
-      const errors = validationResult(req);
-      if(!errors.isEmpty()){
-         //return next(new ValidationError("Rellena todos los campos con valores correctos", errors.array()));
+// Esquema de validación con Zod
+const registerSchema = z
+   .object({
+      email: z.string({required_error: "Email is required"}).email({ message: "Not a valid email" }),
+      name: z.string({required_error: "Name is required"}),
+      password: z.string({required_error: "Password is required"}).min(6, "Password must be at least 6 characters"),
+      confirm_password: z.string({required_error: "Confirm password is required"})
+   })
+   .strict()
+   .superRefine((data, ctx) => {
+      console.log('data', data) 
+      if (data.password !== data.confirm_password) {
+         ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Passwords do not match",
+            path: ["confirm_password"],
+         });
       }
-      return next();
-   }
-];
+   });
 
-//Registro de usuario
-const registerUser = async (req: Request, res: Response) => {
-   //Ponemos por defecto el rol del trabajador
-   req.body.role_id = '670d684e6fabc7dbf9bca8b5';
-   
-   //Leer los datos del usuario
+// Middleware de validación con Zod
+const validateRegisterUser = (data: any): string | null => {
+   try {
+      registerSchema.parse(data);
+      return null;
+
+   } catch (error: any) {
+      return error.errors.map((err: any) => err.message).join(", ");
+   }
+}
+
+const createUser = async (
+   call: grpc.ServerUnaryCall<IUserProto["user"]["CreateUserRequest"], IUserProto["user"]["CreateUserResponse"]>, 
+   callback: grpc.sendUnaryData< IUserProto["user"]["CreateUserResponse"]>
+) => {   
+   const errorMessage = validateRegisterUser(call.request);
+   if (errorMessage) return callback({ code: grpc.status.INVALID_ARGUMENT, message: errorMessage }, null);
+ 
+   // Read user data
    const user = new User({
-      email: req.body.email,
-      name: { value: req.body.name, verify: false },
-      password: req.body.password,
-      role_id: req.body.role_id,
+      email: call.request.email,
+      name: { value: call.request.name, verify: false },
+      password: call.request.password,
+      role_id: RolesEnum.ADMIN,
    });
 
    try {
       //Generamos un token para verificar la cuenta
       user.token = crypto.randomBytes(20).toString('hex');
-
+      console.log(user);
       //Guardamos los datos en la bd
       await user.save();
 
@@ -66,15 +72,19 @@ const registerUser = async (req: Request, res: Response) => {
       //    'verify_account.html'
       // );
 
-      res.json({message: 'Usuario registrado correctamente'});
+      const response = { status: 'success', message: 'Usuario registrado correctamente', token: user.token, user: user };
+      callback(null, response);
 
    } catch (error) {
       console.log(error);
-      res.json({message: 'Hubo un error'});
+      callback({
+         code: grpc.status.INTERNAL,
+         message: "Error al registrar un usuario",
+      } as unknown as grpc.ServerErrorResponse);
    }
 }
 
-const getUser = async (call: any, callback: any) => {
+const getUser = async (call: grpc.ServerUnaryCall<IUserProto["user"]["UserRequest"], IUserProto["user"]["UserResponse"]>, callback: grpc.sendUnaryData< IUserProto["user"]["UserResponse"]>) => {
    try {
       const user = AuthService.getUserService(call.request.id);
 
@@ -92,5 +102,6 @@ const getUser = async (call: any, callback: any) => {
 }
 
 export default {
+   createUser,
    getUser
 }

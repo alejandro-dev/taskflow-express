@@ -1,20 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import * as bcrypt from 'bcrypt';
 import { RolesEnum } from "../enums/roles-enums";
-
-/**
- * 
- * @description User Interface
- *
- */
-export interface IUser {
-   id: string;
-   email: string;
-   password: string;
-   role: RolesEnum;
-   active: boolean;
-   token: string;
-}
+import { IUser } from "../types/IUser";
 
 /**
  * 
@@ -23,9 +10,9 @@ export interface IUser {
  */
 const userSchema = new Schema<IUser>({
    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-   password: { type: String, required: [true, 'You must provide a password'], minlength: 8 },
-   role: { type: String, required: true, enum: Object.values(RolesEnum) },
-   active: { type: Boolean, default: true },
+   password: { type: String, required: [true, 'You must provide a password'], minlength: 6 },
+   role: { type: String, required: true, enum: Object.values(RolesEnum), default: RolesEnum.USER },
+   active: { type: Boolean, default: false },
    token: { type: String, default: null },
 }, {
    timestamps: true,
@@ -50,14 +37,14 @@ userSchema.pre('save', async function(next: Function): Promise<void> {
 });
    
 // Middleware de "post-save" para manejar errores
-userSchema.post<IUser>('save', function(error: any, doc: IUser, next: Function)  {
-   /*console.log(error);
-   if (error.code === 11000) {
-       next(new Error('Ese correo ya está registrado'));
-   } else {
-       next(error);
-   }*/
-});
+// userSchema.post<IUser>('save', function(error: any, doc: IUser, next: Function)  {
+//    console.log(error);
+//    if (error.code === 11000) {
+//        next(new Error('Ese correo ya está registrado'));
+//    } else {
+//        next(error);
+//    }
+// });
 
 /**
  * 

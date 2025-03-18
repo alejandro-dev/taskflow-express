@@ -15,6 +15,21 @@ const getUser = async (id: string) => {
    });
 }
 
+const register = async (params: any) => {
+   return new Promise((resolve, reject) => {
+      grpcClients.authService.CreateUser(params, (error: any, response: any) => {
+         if (error) {
+            reject(error);
+
+         } else {
+            console.log("User Data:", response);
+            resolve(response);
+         }
+      });
+   });
+}
+
 export default {
-   getUser
+   getUser,
+   register
 }

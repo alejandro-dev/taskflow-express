@@ -17,4 +17,5 @@ COPY . .
 EXPOSE 3001
 
 # Comando para ejecutar la aplicación
-CMD ["npm", "run", "dev"]
+# CMD ["npm", "run", "dev"]
+CMD ["sh", "-c", "npm uninstall --save-dev bcrypt && npm install bcrypt && npm run dev"]
