@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { body, Meta, validationResult } from "express-validator";
 import crypto from "crypto";
+import * as grpc from "@grpc/grpc-js";
 import User from "../models/User";
+import AuthService from "../services/auth-service";
 
 const validateRegisterUser = [
    body('email')
@@ -70,4 +72,25 @@ const registerUser = async (req: Request, res: Response) => {
       console.log(error);
       res.json({message: 'Hubo un error'});
    }
+}
+
+const getUser = async (call: any, callback: any) => {
+   try {
+      const user = AuthService.getUserService(call.request.id);
+
+      if (!user) callback({ code: grpc.status.NOT_FOUND, message: "User not found" });
+
+      callback(null, user);
+
+   } catch (error) {
+      console.error(error);
+      callback({
+         code: grpc.status.INTERNAL,
+         message: "Error obteniendo usuario",
+      } as unknown as grpc.ServerErrorResponse);
+   }
+}
+
+export default {
+   getUser
 }
