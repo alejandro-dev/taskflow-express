@@ -1,34 +1,35 @@
-import { NextFunction, Request, Response } from "express";
-import * as grpc from "@grpc/grpc-js";
-import AuthService from "../services/auth-service";
+import { Request, Response } from "express";
+import { authService } from "../services/auth-service";
+import { convertGrpcErrorToHttp } from "../utils/errorHandler";
 
-const getUser = async (req: Request, res: Response) => {
+/**
+ * @route POST /register
+ * @description Register a new user
+ * 
+ * @param {Request} req - Request object
+ * @param {string} req.body.email - Email of the user
+ * @param {string} req.body.name - Name of the user
+ * @param {string} req.body.password - Password of the user
+ * @param {string} req.body.confirm_password - Confirm password of the user
+ * @param {Response} res - Response object
+ * 
+ * @returns {Promise<void>} A promise that resolves when the user registration is successful.
+ * 
+ */
+const register = async (req: Request, res: Response): Promise<void> => {
    try {
-      const response = await AuthService.getUser(req.params.id);
-      console.log('response', response);
-      res.json({ status: 'success', response });  
-
-   } catch (error: any) {
-      console.log(error.message);
-      res.status(500).json({ error: "Error obteniendo usuario" });
-   }
-}
-
-const register = async (req: Request, res: Response, next: NextFunction) => {
-   try {
-      const response = await AuthService.register(req.body);
+      const response = await authService.register(req.body);
       res.json(response);
 
    } catch (error: any) {
-      if(error.code === grpc.status.INVALID_ARGUMENT) {
-         res.status(400).json({ status: "fail", message: error.message });
-         return next()
-      }
-      res.status(500).json({ error: "Error al registrar el usuario" });
+      // If the error has a code, we map it to an HTTP code
+      if (error.code) return convertGrpcErrorToHttp(error, res); 
+
+      // If there is no specific code, we send an internal error
+      res.status(500).json({ error: "Internal server error" });
    }
 }
 
 export default {
-   getUser,
    register
 }

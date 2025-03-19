@@ -1,35 +1,27 @@
 import grpcClients from "../grpc/grpc-clients";
 
-const getUser = async (id: string) => {
-   return new Promise((resolve, reject) => {
-      grpcClients.authService.GetUser({ id }, (error: any, response: any) => {
-         if (error) {
-            console.error("Error:", error.message);
-            reject(error);
-
-         } else {
-            console.log("User Data:", response);
+class AuthService {
+   /**
+    * 
+    * @description Register a new user and send data to auth microservice
+    * 
+    * @param params - Params to register a new user
+    * @param params.email - Email of the user
+    * @param params.name - Name of the user
+    * @param params.password - Password of the user
+    * @param params.confirm_password - Confirm password of the user
+    *
+    * @returns {Promise<Object>} A promise that resolves with the user registration response.
+    */
+   register = async (params: any): Promise<object> => {
+      return new Promise((resolve, reject) => {
+         grpcClients.authService.CreateUser(params, (error: GrpcError, response: any) => {
+            // if containt error reject the promise
+            if (error) reject(error);
             resolve(response);
-         }
+         });
       });
-   });
+   }
 }
 
-const register = async (params: any) => {
-   return new Promise((resolve, reject) => {
-      grpcClients.authService.CreateUser(params, (error: any, response: any) => {
-         if (error) {
-            reject(error);
-
-         } else {
-            console.log("User Data:", response);
-            resolve(response);
-         }
-      });
-   });
-}
-
-export default {
-   getUser,
-   register
-}
+export const authService = new AuthService();
