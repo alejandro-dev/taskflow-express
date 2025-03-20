@@ -20,4 +20,17 @@ const router = express.Router();
  */
 router.post('/register', AuthController.register); 
 
+/**
+ * @route POST /auth/login
+ * @group Auth
+ * @description Login a user
+ * @param {string} email.params - Email
+ * @param {string} password.params - Password
+ * @returns {Error} 400 - Bad Request. The data is invalid
+ * @returns {Error} 401 - Unauthorized
+ * @returns {Error} 404 - Not Found. The user is not found
+ * @returns {Error} 500 - Error while registering the user
+ */
+router.post('/login', AuthController.login);
+
 export default router;

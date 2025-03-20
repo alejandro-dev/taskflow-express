@@ -22,6 +22,26 @@ class AuthService {
          });
       });
    }
+
+   /**
+    * 
+    * @description Login a user and send data to auth microservice
+    * 
+    * @param params - Params to login a user
+    * @param params.email - Email of the user
+    * @param params.password - Password of the user
+    *
+    * @returns {Promise<Object>} A promise that resolves with the user login response.
+    */
+   login = async (params: any): Promise<object> => {
+      return new Promise((resolve, reject) => {
+         grpcClients.authService.Login(params, (error: GrpcError, response: any) => {
+            // if containt error reject the promise
+            if (error) reject(error);
+            resolve(response);
+         });
+      });
+   }
 }
 
 export const authService = new AuthService();

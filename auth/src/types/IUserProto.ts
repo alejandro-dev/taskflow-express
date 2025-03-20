@@ -4,25 +4,15 @@ import { IUser } from "./IUser";
 // Define los tipos para los mensajes y servicios que están en el archivo .proto
 export interface IUserProto {
    user: {
-      UserRequest: UserRequest;
-      UserResponse: UserResponse;
       CreateUserRequest: CreateUserRequest;
       CreateUserResponse: CreateUserResponse;
+      LoginRequest: LoginRequest;
+      LoginResponse: LoginResponse;
       User: IUser;
       UserService: {
          service: grpc.ServiceDefinition<any>;
       };
    };
-}
-
-interface UserRequest {
-   id: string;
-}
-
-interface UserResponse {
-   id: string;
-   name: string;
-   age: number;
 }
 
 interface CreateUserRequest {
@@ -37,5 +27,16 @@ interface CreateUserResponse {
    message: string;
    token?: string;
    user?: IUser;
-   code?: number;
+}
+
+interface LoginRequest {
+   email: string;
+   password: string;
+}
+
+interface LoginResponse {
+   status: string;
+   message: string;
+   token?: string;
+   user?: IUser;
 }

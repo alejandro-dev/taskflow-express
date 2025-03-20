@@ -27,10 +27,9 @@ class UserRepository {
       }
    }
 
-   async findUserByEmail(email: string) {
+   async findUserByEmail(email: string): Promise<IUser | null> {
       try {
-         const user = await User.findOne({ email });
-         return user;
+         return await User.findOne({ email });
 
       } catch (error) {
          // Handle error

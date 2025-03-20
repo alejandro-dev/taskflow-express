@@ -31,6 +31,34 @@ const createUser = async (
    }
 }
 
+/**
+ * @description Handles the user login via gRPC.
+ * 
+ * @param {grpc.ServerUnaryCall<IUserProto["user"]["LoginRequest"], IUserProto["user"]["LoginResponse"]>} call - The gRPC request call containing user data.
+ * @param {grpc.sendUnaryData<IUserProto["user"]["LoginResponse"]>} callback - The gRPC callback function to return a response.
+ * 
+ * @returns {Promise<void>} A promise that resolves when the user login is successful.
+ */
+const login = async (
+   call: grpc.ServerUnaryCall<IUserProto["user"]["LoginRequest"], IUserProto["user"]["LoginResponse"]>, 
+   callback: grpc.sendUnaryData<IUserProto["user"]["LoginResponse"]>
+): Promise<void> => {   
+   // Validate user data
+   // const errorMessage = validateRegisterUser(call.request);
+   // if (errorMessage) return callback({ code: grpc.status.INVALID_ARGUMENT, message: errorMessage }, null);
+ 
+   try {
+      // Save user data
+      const response = await authService.loginService(call.request) as IUserProto["user"]["LoginResponse"];
+
+      // Return response
+      callback(null, response);
+
+   } catch (error: any) {
+      callback(error, null);
+   }
+}
 export default {
-   createUser
+   createUser,
+   login
 }

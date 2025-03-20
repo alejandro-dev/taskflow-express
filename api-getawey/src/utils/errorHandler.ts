@@ -13,12 +13,19 @@ const grpcToHttpStatus: Record<number, number> = {
    [status.UNAVAILABLE]: 503
 };
 
-// Interface to type gRPC error
-interface GrpcError extends Error {
+/**
+ * Interface to define a gRPC error.
+ */interface GrpcError extends Error {
    code?: number; // El código puede ser opcional
 }
 
-// Función para convertir errores gRPC a HTTP
+/**
+ * @description Converts a gRPC error into an HTTP response.
+ * 
+ * @param {GrpcError} error - The gRPC error object.
+ * @param {Response} res - The Express response object.
+ * 
+ */
 const convertGrpcErrorToHttp = (error: GrpcError, res: Response): void => {
    // Map gRPC status code to HTTP status code
    const httpStatus = grpcToHttpStatus[error.code || status.INTERNAL] || 500;

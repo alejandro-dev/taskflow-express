@@ -1,4 +1,6 @@
+import { ObjectId } from "mongoose";
 import { RolesEnum } from "../enums/roles-enums";
+import mongoose from "mongoose";
 
 /**
  * 
@@ -6,10 +8,11 @@ import { RolesEnum } from "../enums/roles-enums";
  *
  */
 export interface IUser {
-   id: string;
+   _id: mongoose.Types.ObjectId;
    email: string;
    password: string;
    role: RolesEnum;
    active: boolean;
    token: string;
+   comparePassword(password: string): boolean;
 }

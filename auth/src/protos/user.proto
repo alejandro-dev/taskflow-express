@@ -4,20 +4,8 @@ package user;
 
 // Service definition for user service
 service UserService {
-   rpc GetUser (UserRequest) returns (UserResponse);
    rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
-}
-
-// Message for the body of the request for getting a user
-message UserRequest {
-   string id = 1;
-}
-
-// Message for the response of the user request
-message UserResponse {
-   string id = 1;
-   string name = 2;
-   int32 age = 3;
+   rpc Login(LoginRequest) returns (CreateUserResponse);
 }
 
 // Message for the body of the request for getting a user
@@ -34,7 +22,6 @@ message CreateUserResponse {
    string message = 2;
    string token = 3;
    User user = 4;
-   int32 code = 5;
 }
 
 // Definition of the user message
@@ -42,4 +29,18 @@ message User {
    string _id = 1;
    string email = 2;
    string name = 3;
+}
+
+// Message for the body of the request for getting a user
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+// Message for the response of the user creation
+message LoginResponse {
+  string status = 1;
+  string message = 2;
+  string token = 3;
+  User user = 4;
 }
