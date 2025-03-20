@@ -38,7 +38,7 @@ class AuthService {
          //    'verify_account.html'
          // );
 
-         return { status: 'success', message: 'Register user success', token: user!.token, user: user };
+         return { status: 'success', message: 'Register user success. A confirmation email has been sent to you', token: user!.token, user: user };
 
       } catch (error: any) {
          throw error;

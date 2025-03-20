@@ -2,6 +2,7 @@ import * as grpc from "@grpc/grpc-js";
 import { IUserProto } from "../types/IUserProto";
 import { authService } from "../services/auth-service";
 import { validateRegisterUser } from "../validators/registerValidator";
+import { validateLoginUser } from "../validators/loginValidator";
 
 /**
  * @description Handles the user registration via gRPC.
@@ -44,8 +45,8 @@ const login = async (
    callback: grpc.sendUnaryData<IUserProto["user"]["LoginResponse"]>
 ): Promise<void> => {   
    // Validate user data
-   // const errorMessage = validateRegisterUser(call.request);
-   // if (errorMessage) return callback({ code: grpc.status.INVALID_ARGUMENT, message: errorMessage }, null);
+   const errorMessage = validateLoginUser(call.request);
+   if (errorMessage) return callback({ code: grpc.status.INVALID_ARGUMENT, message: errorMessage }, null);
  
    try {
       // Save user data
