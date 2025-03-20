@@ -27,7 +27,7 @@ const register = async (req: Request, res: Response): Promise<void> => {
       if (error.code) return convertGrpcErrorToHttp(error, res); 
 
       // If there is no specific code, we send an internal error
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ status: 'error', message: "Internal server error" });
    }
 }
 
@@ -54,7 +54,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
       if (error.code) return convertGrpcErrorToHttp(error, res); 
 
       // If there is no specific code, we send an internal error
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ status: 'error', message: "Internal server error" });
    }
 }
 

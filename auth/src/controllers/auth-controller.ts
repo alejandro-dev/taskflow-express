@@ -1,8 +1,6 @@
 import * as grpc from "@grpc/grpc-js";
 import { IUserProto } from "../types/IUserProto";
 import { authService } from "../services/auth-service";
-import { validateRegisterUser } from "../validators/registerValidator";
-import { validateLoginUser } from "../validators/loginValidator";
 
 /**
  * @description Handles the user registration via gRPC.
@@ -16,10 +14,6 @@ const createUser = async (
    call: grpc.ServerUnaryCall<IUserProto["user"]["CreateUserRequest"], IUserProto["user"]["CreateUserResponse"]>, 
    callback: grpc.sendUnaryData<IUserProto["user"]["CreateUserResponse"]>
 ): Promise<void> => {   
-   // Validate user data
-   const errorMessage = validateRegisterUser(call.request);
-   if (errorMessage) return callback({ code: grpc.status.INVALID_ARGUMENT, message: errorMessage }, null);
- 
    try {
       // Save user data
       const response = await authService.registerUserService(call.request) as IUserProto["user"]["CreateUserResponse"];
@@ -43,11 +37,7 @@ const createUser = async (
 const login = async (
    call: grpc.ServerUnaryCall<IUserProto["user"]["LoginRequest"], IUserProto["user"]["LoginResponse"]>, 
    callback: grpc.sendUnaryData<IUserProto["user"]["LoginResponse"]>
-): Promise<void> => {   
-   // Validate user data
-   const errorMessage = validateLoginUser(call.request);
-   if (errorMessage) return callback({ code: grpc.status.INVALID_ARGUMENT, message: errorMessage }, null);
- 
+): Promise<void> => {    
    try {
       // Save user data
       const response = await authService.loginService(call.request) as IUserProto["user"]["LoginResponse"];
