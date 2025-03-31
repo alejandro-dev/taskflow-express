@@ -1,9 +1,18 @@
 import express from "express";
-import AuthController from "../controllers/auth-controller";
 import { validateLogin } from "../validators/auth/loginValidator";
 import { validateRegister } from "../validators/auth/registerValidator";
+import { AuthController } from "../controllers/auth-controller";
+import { AuthService } from "../services/auth-service";
+import { LogsService } from "../services/logs-service";
 
 const router = express.Router();
+
+// Instance of the services
+const authService = new AuthService();
+const logsService = new LogsService();
+
+// Create controller instance
+const authController = new AuthController(authService, logsService);
 
 /**
  * @route POST /auth/register
@@ -19,7 +28,7 @@ const router = express.Router();
  * @returns {Error} 409 - Conflict. The username o email is already registered
  * @returns {Error} 500 - Error while registering the user
  */
-router.post('/register', validateRegister, AuthController.register); 
+router.post('/register', validateRegister, authController.register); 
 
 /**
  * @route POST /auth/login
@@ -34,6 +43,6 @@ router.post('/register', validateRegister, AuthController.register);
  * @returns {Error} 404 - Not Found. The user is not found
  * @returns {Error} 500 - Error while registering the user
  */
-router.post('/login', validateLogin, AuthController.login);
+router.post('/login', validateLogin, authController.login);
 
 export default router;

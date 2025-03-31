@@ -20,6 +20,7 @@ interface CreateUserRequest {
    name: string;
    password: string;
    confirm_password: string;
+   requestId?: string;
 }
 
 interface CreateUserResponse {
@@ -32,6 +33,7 @@ interface CreateUserResponse {
 interface LoginRequest {
    email: string;
    password: string;
+   requestId?: string;
 }
 
 interface LoginResponse {

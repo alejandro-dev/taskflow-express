@@ -1,6 +1,6 @@
 import grpcClients from "../grpc/grpc-clients";
 
-class AuthService {
+export class AuthService {
    /**
     * 
     * @description Register a new user and send data to auth microservice
@@ -43,5 +43,3 @@ class AuthService {
       });
    }
 }
-
-export const authService = new AuthService();

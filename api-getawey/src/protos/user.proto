@@ -14,6 +14,7 @@ message CreateUserRequest {
   string name = 2;
   string password = 3;
   string confirm_password = 4;
+  string requestId = 5;
 }
 
 // Message for the response of the user creation
@@ -26,6 +27,7 @@ message CreateUserResponse {
 message LoginRequest {
   string email = 1;
   string password = 2;
+  string requestId = 3;
 }
 
 // Message for the response of the user creation

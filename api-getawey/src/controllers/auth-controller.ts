@@ -1,64 +1,101 @@
 import { Request, Response } from "express";
-import { authService } from "../services/auth-service";
+import { v4 as uuidv4 } from 'uuid';
 import { convertGrpcErrorToHttp } from "../utils/errorHandler";
+import { AuthService } from "../services/auth-service";
+import { LogsService } from "../services/logs-service";
+import { QueuesEnum } from "../enums/queues-enums";
 
-/**
- * @route POST /register
- * 
- * @description Register a new user
- * 
- * @param {Request} req - Request object
- * @param {string} req.body.email - Email of the user
- * @param {string} req.body.name - Name of the user
- * @param {string} req.body.password - Password of the user
- * @param {string} req.body.confirm_password - Confirm password of the user
- * @param {Response} res - Response object
- * 
- * @returns {Promise<void>} A promise that resolves when the user registration is successful.
- * 
- */
-const register = async (req: Request, res: Response): Promise<void> => {
-   try {
-      const response = await authService.register(req.body);
-      res.json(response);
+export class AuthController {
+   private authService: AuthService;
+   private logsService: LogsService;
 
-   } catch (error: any) {
-      // If the error has a code, we map it to an HTTP code
-      if (error.code) return convertGrpcErrorToHttp(error, res); 
-
-      // If there is no specific code, we send an internal error
-      res.status(500).json({ status: 'error', message: "Internal server error" });
+   constructor(authService: AuthService, logsService: LogsService) {
+      this.authService = authService;
+      this.logsService = logsService;
    }
-}
 
-/**
- * @route POST /login
- * 
- * @description Login a user
- * 
- * @param {Request} req - Request object
- * @param {string} req.body.email - Email of the user
- * @param {string} req.body.password - Password of the user
- * @param {Response} res - Response object
- * 
- * @returns {Promise<void>} A promise that resolves when the user login is successful.
- * 
- */
-const login = async (req: Request, res: Response): Promise<void> => {
-   try {
-      const response = await authService.login(req.body);
-      res.json(response);
+   /**
+    * @route POST /register
+    * 
+    * @description Register a new user
+    * 
+    * @param {Request} req - Request object
+    * @param {string} req.body.email - Email of the user
+    * @param {string} req.body.name - Name of the user
+    * @param {string} req.body.password - Password of the user
+    * @param {string} req.body.confirm_password - Confirm password of the user
+    * @param {Response} res - Response object
+    * 
+    * @returns {Promise<void>} A promise that resolves when the user registration is successful.
+    * 
+    */
+   register = async (req: Request, res: Response): Promise<void> => {
+      try {
+         // Extract email from request body
+         const { email } = req.body;
 
-   } catch (error: any) {
-      // If the error has a code, we map it to an HTTP code
-      if (error.code) return convertGrpcErrorToHttp(error, res); 
+         // Generate a new request id
+         const requestId = uuidv4();
 
-      // If there is no specific code, we send an internal error
-      res.status(500).json({ status: 'error', message: "Internal server error" });
+         // Delete password and confirm_password from request body
+         const logRequest = { ...req.body, password: undefined, confirm_password: undefined };
+
+         // Request logs microservice to log the event
+         this.logsService.logInfo(QueuesEnum.LOGS, requestId, 'api-getawey', email, 'auth.crete', 'Create user request received', logRequest);
+
+         // Create new request to auth microservice
+         const request = { ...req.body, requestId }
+
+         // Call the login service
+         const response = await this.authService.register(request);
+         res.json(response);
+
+      } catch (error: any) {
+         // If the error has a code, we map it to an HTTP code
+         if (error.code) return convertGrpcErrorToHttp(error, res); 
+
+         // If there is no specific code, we send an internal error
+         res.status(500).json({ status: 'error', message: "Internal server error" });
+      }
    }
-}
 
-export default {
-   register,
-   login
+   /**
+    * @route POST /login
+    * 
+    * @description Login a user
+    * 
+    * @param {Request} req - Request object
+    * @param {string} req.body.email - Email of the user
+    * @param {string} req.body.password - Password of the user
+    * @param {Response} res - Response object
+    * 
+    * @returns {Promise<void>} A promise that resolves when the user login is successful.
+    * 
+    */
+   login = async (req: Request, res: Response): Promise<void> => {
+      try {
+         // Extract email from request body
+         const { email } = req.body;
+
+         // Generate a new request id
+         const requestId = uuidv4();
+
+         // Request logs microservice to log the event
+         this.logsService.logInfo(QueuesEnum.LOGS, requestId, 'api-getawey', email, 'auth.login', 'Login user request received', { email });
+
+         // Create new request to auth microservice
+         const request = { ...req.body, requestId }
+
+         // Call the login service
+         const response = await this.authService.login(request);
+         res.json(response);
+
+      } catch (error: any) {
+         // If the error has a code, we map it to an HTTP code
+         if (error.code) return convertGrpcErrorToHttp(error, res); 
+
+         // If there is no specific code, we send an internal error
+         res.status(500).json({ status: 'error', message: "Internal server error" });
+      }
+   }
 }

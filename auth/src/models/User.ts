@@ -15,6 +15,7 @@ const userSchema = new Schema<IUser>({
    active: { type: Boolean, default: false },
    token: { type: String, default: null },
 }, {
+   versionKey: false,
    timestamps: true,
 });
 

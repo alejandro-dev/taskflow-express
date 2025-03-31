@@ -23,6 +23,32 @@ services:
     networks:
       - app-network
 
+  notifications:
+    build: ./notifications
+    container_name: notifications
+    ports:
+      - "3002:3002"
+    depends_on:
+      - auth
+    volumes:
+      - ./notifications:/app
+      - '/app/node_modules'
+    networks:
+      - app-network
+
+  logs:
+    build: ./logs
+    container_name: logs
+    ports:
+      - "3003:3003"
+    depends_on:
+      - auth
+    volumes:
+      - ./logs:/app
+      - '/app/node_modules'
+    networks:
+      - app-network
+
   rabbitmq:
     container_name: rabbitmq-taskflow-express
     image: rabbitmq:3.12.4-management-alpine
@@ -45,6 +71,20 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
       - ./auth-db:/data/db
+
+  logs-db:
+    image: mongo:latest
+    container_name: logs-db
+    restart: always
+    ports:
+      - "27019:27017"
+    networks:
+      - app-network
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - ./logs-db:/data/db
 
 networks:
   app-network:

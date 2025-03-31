@@ -4,7 +4,7 @@ import User from "../models/User";
 import { IUserProto } from "../types/IUserProto";
 import { IUser } from "../types/IUser";
 
-class UserRepository {
+export class UserRepository {
    async createUser(userData: IUserProto["user"]["CreateUserRequest"]) {
       try {
          // Read user data
@@ -38,4 +38,4 @@ class UserRepository {
    }
 }
 
-export const userRepository = new UserRepository();
+// export const userRepository = new UserRepository();

@@ -1,11 +1,33 @@
 import * as grpc from "@grpc/grpc-js";
+import amqp from "amqplib";
+import { v4 as uuidv4 } from 'uuid';
 import { IUserProto } from "../types/IUserProto";
-import { userRepository } from "../repository/user-repository";
+import { UserRepository } from "../repository/user-repository";
 import { GrpcError } from "../utils/GrpcError";
 import { generateJWT } from "../utils/GenerateAccessToken";
-import mongoose from "mongoose";
+import { LogsService } from "./logs-service";
+import { QueuesEnum } from "../enums/queues-enums";
+import { QueueService } from "./queue-service";
+import { NotificationService } from "./notifications-service";
 
-class AuthService {    
+export class AuthService {    
+   private userRepository: UserRepository;
+   private logsService: LogsService;
+   private notificationsService: NotificationService;
+   private connection: amqp.ChannelModel | null = null;
+   private channel: amqp.Channel | null = null;
+
+   constructor(userRepository: UserRepository) {
+      this.userRepository = userRepository;
+      this.logsService = new LogsService(new QueueService());
+      this.notificationsService = new NotificationService(new QueueService());
+   }
+
+   async initRabbitMQ() {
+      this.connection = await amqp.connect(process.env.RMQ_URL!);
+      this.channel = await this.connection.createChannel();
+   }
+
    /**
     * @description Register a new user
     * 
@@ -19,24 +41,24 @@ class AuthService {
     */     
    registerUserService = async (userData: IUserProto["user"]["CreateUserRequest"]): Promise<object> => {
       try {
+         //Extract email from userData
+         const { email, name, requestId } = userData;
+
          // Check if user already exists
-         const existUser = await userRepository.findUserByEmail(userData.email);
+         const existUser = await this.userRepository.findUserByEmail(email);
          if(existUser) throw new GrpcError("User already exists", grpc.status.ALREADY_EXISTS);
          
          // Save user data
-         const user = await userRepository.createUser(userData);
+         const user = await this.userRepository.createUser(userData);
 
-         //Generamos la url con el token
-         //const custom_url = `http://${req.headers.host}/auth/verify_account/${user.token}`;
-         //const custom_url = `${process.env.FRONTEND_URL}/account_confirmed/${user.token}`;
+         // Generate the url with the token
+         const customUrl = `${process.env.FRONTEND_URL}/auth/account-confirmed/${user.token}`;
 
-         // //Envíamos el email
-         // sendEmail(
-         //    user.email,
-         //    'Diversifyhut - Verificación de cuenta',
-         //    {name: user.name.value, custom_url},
-         //    'verify_account.html'
-         // );
+         // Send email to notifications microservice
+         this.notificationsService.sendNotification(QueuesEnum.NOTIFICATIONS, { to: user.email, subject: 'Verificación de cuenta', replacements: {url: customUrl} });
+
+         // Log user created
+         this.logsService.sendLogs(QueuesEnum.LOGS, requestId || uuidv4(), 'auth', user._id.toString(), 'auth.create', 'User created', { email});
 
          return { status: 'success', message: 'Register user success. A confirmation email has been sent to you', token: user!.token, user: user };
 
@@ -57,10 +79,10 @@ class AuthService {
    loginService = async (userData: IUserProto["user"]["LoginRequest"]): Promise<object> => {
       try {
          //Extract email and password from request
-         const { email, password } = userData;
+         const { email, password, requestId } = userData;
 
          // Check if user already exists
-         const user = await userRepository.findUserByEmail(email);
+         const user = await this.userRepository.findUserByEmail(email);
          if(!user) throw new GrpcError("Email or password incorrect", grpc.status.NOT_FOUND);
 
          // Check if the password is correct
@@ -77,6 +99,9 @@ class AuthService {
             role_id: user.role
          });
 
+         // Log user loged
+         this.logsService.sendLogs(QueuesEnum.LOGS, requestId || uuidv4(), 'auth', user._id.toString(), 'auth.login', 'User logged');
+
          return { status: 'success', message: 'User logged', token, user };
 
       } catch (error: any) {
@@ -84,5 +109,3 @@ class AuthService {
       }
    }
 }
-
-export const authService = new AuthService();
