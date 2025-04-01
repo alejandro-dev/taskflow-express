@@ -52,13 +52,16 @@ export class AuthService {
          const user = await this.userRepository.createUser(userData);
 
          // Generate the url with the token
-         const customUrl = `${process.env.FRONTEND_URL}/auth/account-confirmed/${user.token}`;
+         const customUrl = `${process.env.FRONTEND_URL}/auth/verify-account/${user!.token}`;
 
          // Send email to notifications microservice
-         this.notificationsService.sendNotification(QueuesEnum.NOTIFICATIONS, { to: user.email, subject: 'Verificación de cuenta', replacements: {url: customUrl} });
+         this.notificationsService.sendNotification(QueuesEnum.NOTIFICATIONS, { to: user!.email, subject: 'Verificación de cuenta', replacements: {url: customUrl} });
+
+         // Log send email user
+         this.logsService.sendLogs(QueuesEnum.LOGS, requestId || uuidv4(), 'auth', user!._id.toString(), 'auth.create', 'Send email confirmation', { email });
 
          // Log user created
-         this.logsService.sendLogs(QueuesEnum.LOGS, requestId || uuidv4(), 'auth', user._id.toString(), 'auth.create', 'User created', { email});
+         this.logsService.sendLogs(QueuesEnum.LOGS, requestId || uuidv4(), 'auth', user!._id.toString(), 'auth.create', 'User created', { email});
 
          return { status: 'success', message: 'Register user success. A confirmation email has been sent to you', token: user!.token, user: user };
 
@@ -103,6 +106,38 @@ export class AuthService {
          this.logsService.sendLogs(QueuesEnum.LOGS, requestId || uuidv4(), 'auth', user._id.toString(), 'auth.login', 'User logged');
 
          return { status: 'success', message: 'User logged', token, user };
+
+      } catch (error: any) {
+         throw error;
+      }
+   }
+
+   /**
+    * 
+    * @description - Verify account
+    * 
+    * @param {Object} userData - User data to verify account
+    * @param {string} userData.token - Token to verify account
+    * @param {string} userData.requestId - Request id
+    *
+    * @returns {Promise<Object>} A promise that resolves with the user verification response.
+    */
+   verifyAccountService = async (userData: IUserProto["user"]["VerifyAccountRequest"]): Promise<object> => {
+      try {
+         //Extract email and password from request
+         const { token, requestId } = userData;
+
+         // Check if user already exists
+         const user = await this.userRepository.findUserByToken(token);
+         if(!user) throw new GrpcError("Token incorrect", grpc.status.NOT_FOUND);
+
+         // Update user data
+         await this.userRepository.activateAccount(user._id);
+
+         // Log user loged
+         this.logsService.sendLogs(QueuesEnum.LOGS, requestId || uuidv4(), 'auth', user._id.toString(), 'auth.verify-account', 'User verified');
+
+         return { status: 'success', message: 'User verified', user };
 
       } catch (error: any) {
          throw error;

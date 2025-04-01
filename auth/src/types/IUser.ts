@@ -12,6 +12,6 @@ export interface IUser {
    password: string;
    role: RolesEnum;
    active: boolean;
-   token: string;
+   token?: string;
    comparePassword(password: string): boolean;
 }

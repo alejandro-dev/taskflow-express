@@ -13,7 +13,7 @@ const userSchema = new Schema<IUser>({
    password: { type: String, required: [true, 'You must provide a password'], minlength: 6 },
    role: { type: String, required: true, enum: Object.values(RolesEnum), default: RolesEnum.USER },
    active: { type: Boolean, default: false },
-   token: { type: String, default: null },
+   token: { type: String, required: false, default: null },
 }, {
    versionKey: false,
    timestamps: true,

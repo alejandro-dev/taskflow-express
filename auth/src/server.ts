@@ -19,6 +19,7 @@ const authController = new AuthController(authService);
 server.addService(userProto.user.UserService.service,{
    createUser: authController.createUser.bind(authController),
    login: authController.login.bind(authController),
+   verifyAccount: authController.verifyAccount.bind(authController),
 });
 
 server.bindAsync(

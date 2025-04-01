@@ -42,4 +42,24 @@ export class AuthService {
          });
       });
    }
+
+   /**
+    * 
+    * @description Verify account
+    * 
+    * @param params - Params to verify the account
+    * @param params.token - Token to verify the account
+    * @param params.requestId - Request id
+    *
+    * @returns {Promise<Object>} A promise that resolves with the user verification response.
+    */
+   verifyAccount = async (params: any): Promise<object> => {
+      return new Promise((resolve, reject) => {
+         grpcClients.authService.VerifyAccount(params, (error: GrpcError, response: any) => {
+            // if containt error reject the promise
+            if (error) reject(error);
+            resolve(response);
+         });
+      });
+   }
 }

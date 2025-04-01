@@ -45,4 +45,16 @@ router.post('/register', validateRegister, authController.register);
  */
 router.post('/login', validateLogin, authController.login);
 
+/**
+ * @route GET /auth/verify-account/{token}
+ * @group Auth
+ * @description Verify the account of the user
+ * @param {string} token.params - Token to verify the account
+ * @returns {object} 200 - Account verified successfully
+ * @returns {Error} 400 - Bad Request. The token is invalid
+ * @returns {Error} 404 - Not Found. The user is not found
+ * @returns {Error} 500 - Error while verifying the account
+ */
+router.get('/verify-account/:token', authController.verifyAccount);
+
 export default router;

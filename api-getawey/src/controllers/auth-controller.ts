@@ -98,4 +98,46 @@ export class AuthController {
          res.status(500).json({ status: 'error', message: "Internal server error" });
       }
    }
+
+   /**
+    * 
+    * @router GET /auth/verify-account/{token}
+    * 
+    * @description Verify the account of the user
+    * 
+    * @param req - Request object
+    * @param req.params.token - Token to verify the account
+    * @param res - Response object
+    * 
+    * @return {Promise<void>} A promise that resolves when the user is verified.
+    *
+    */
+   verifyAccount = async (req: Request, res: Response): Promise<void> => {
+      try {
+         // Extract email from request params
+         const { token } = req.params;
+
+         // Generate a new request id
+         const requestId = uuidv4();
+
+         // Request logs microservice to log the event
+         this.logsService.logInfo(QueuesEnum.LOGS, requestId, 'api-getawey', token, 'auth.verify-account', 'Verify account request received', { token });
+
+         // Create new request to auth microservice
+         const request = { token, requestId }
+
+         // Call the login service
+         const response = await this.authService.verifyAccount(request);
+         res.json(response);
+
+      } catch (error: any) {
+         console.log(error);
+         // If the error has a code, we map it to an HTTP code
+         if (error.code) return convertGrpcErrorToHttp(error, res); 
+
+         // If there is no specific code, we send an internal error
+         res.status(500).json({ status: 'error', message: "Internal server error" });
+         
+      }
+   }
 }

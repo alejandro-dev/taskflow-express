@@ -4,8 +4,9 @@ package user;
 
 // Service definition for user service
 service UserService {
-   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
-   rpc Login(LoginRequest) returns (CreateUserResponse);
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc VerifyAccount(VerifyAccountRequest) returns (VerifyAccountResponse);
 }
 
 // Message for the body of the request for getting a user
@@ -36,6 +37,18 @@ message LoginResponse {
   string message = 2;
   string token = 3;
   User user = 4;
+}
+
+// Message for the body of the request for verifying an account
+message VerifyAccountRequest {
+  string token = 1;
+  string requestId = 2;
+}
+
+// Message for the response of the account verification
+message VerifyAccountResponse {
+  string status = 1;
+  string message = 2;
 }
 
 // Definition of the user message

@@ -67,4 +67,22 @@ export class AuthController {
          callback(error, null);
       }
    }
+
+   verifyAccount = async (
+      call: grpc.ServerUnaryCall<IUserProto["user"]["VerifyAccountRequest"], IUserProto["user"]["VerifyAccountResponse"]>, 
+      callback: grpc.sendUnaryData<IUserProto["user"]["VerifyAccountResponse"]>
+   ): Promise<void> => {
+      try {
+         // User verify account
+         const response = await this.authService.verifyAccountService(call.request) as IUserProto["user"]["VerifyAccountResponse"];
+
+         // Return response
+         callback(null, response);
+
+      } catch (error: any) {
+         //this.logsService.sendLogs(QueuesEnum.LOGS, call.request.requestId || uuidv4(), 'auth', call.request.email.toString(), 'auth.verify', error.message, error);
+
+         callback(error, null);
+      }
+   }
 }
