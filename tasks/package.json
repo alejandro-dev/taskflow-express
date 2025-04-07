@@ -8,12 +8,17 @@
   "author": "alejandro-dev",
   "license": "ISC",
   "description": "",
+  "type": "module",
   "dependencies": {
     "@grpc/grpc-js": "^1.13.2",
     "@grpc/proto-loader": "^0.7.13",
     "amqplib": "^0.10.7",
+    "default": "^0.1.1",
     "dotenv": "^16.4.7",
+    "export": "^0.1.337",
     "express": "^5.1.0",
+    "mysql2": "^3.14.0",
+    "pg": "^8.14.1",
     "sequelize": "^6.37.7",
     "uuid": "^11.1.0"
   },

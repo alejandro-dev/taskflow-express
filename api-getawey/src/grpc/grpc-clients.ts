@@ -19,10 +19,10 @@ const grpcClients = {
       "auth:50051",
       grpc.credentials.createInsecure() 
    ),
-   // taskService: new (loadProto(PROTO_PATHS.task)).task.TaskService(
-   //    "task:50052",
-   //    grpc.credentials.createInsecure()
-   // ),
+   tasksService: new (loadProto(__dirname + PROTO_PATHS.TASK)).task.TaskService(
+      "tasks:50052",
+      grpc.credentials.createInsecure()
+   ),
 };
 
 export default grpcClients;

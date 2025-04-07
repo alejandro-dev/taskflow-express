@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package task;
+
+// Service definition for task service
+service TaskService {
+  rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
+}
+
+// Message for the body of the request for getting a user
+message CreateTaskRequest {
+   string title = 1;
+   string description = 2;
+   string authorId = 3;
+   string assignedUserId = 4;
+   string dueDate = 5;
+   string status = 6;
+   string priority = 7;
+}
+
+// Message for the response of the user creation
+message CreateTaskResponse {
+   string status = 1;
+   string message = 2;
+}

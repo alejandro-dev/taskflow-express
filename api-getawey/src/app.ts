@@ -1,7 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import amqp from "amqplib";
-import { AuthRoutes } from "./routes";
+import { AuthRoutes, TasksRoutes } from "./routes";
 
 const app = express();
 
@@ -13,6 +12,7 @@ app.use(express.json());
 
 // Add the apiRouter to the app
 app.use('/auth', AuthRoutes);
+app.use('/tasks', TasksRoutes);
 
 
 export default app;

@@ -15,7 +15,7 @@ export class AuthController {
    }
 
    /**
-    * @route POST /register
+    * @route POST /auth/register
     * 
     * @description Register a new user
     * 
@@ -60,7 +60,7 @@ export class AuthController {
    }
 
    /**
-    * @route POST /login
+    * @route POST /auth/login
     * 
     * @description Login a user
     * 
