@@ -62,4 +62,22 @@ export class AuthService {
          });
       });
    }
+
+   /**
+    * 
+    * @description Verify access token
+    * 
+    * @param params - Params to verify the access token
+    * @param params.token - Token to verify the access token
+    * @returns 
+    */
+   verifyAccessToken = async (params: any): Promise<object> => {
+      return new Promise((resolve, reject) => { 
+         grpcClients.authService.VerifyAccessToken(params, (error: GrpcError, response: any) => {
+            // if containt error reject the promise
+            if (error) reject(error);
+            resolve(response);
+         });
+      });
+   }
 }

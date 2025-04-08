@@ -3,6 +3,7 @@ import { TasksService } from "../services/tasks-service";
 import { LogsService } from "../services/logs-service";
 import { TasksController } from "../controllers/tasks-controller";
 import { validateCreateTask } from "../validators/tasks/createTaskValidator";
+import authJWT from "../middlewares/authJWT";
 
 const router = express.Router();
 
@@ -26,6 +27,6 @@ const tasksController = new TasksController(tasksService, logsService);
  * @returns {Error} 400 - Bad Request. The data is invalid
  * @returns {Error} 500 - Error while creating the task
  */
-router.post('/', validateCreateTask, tasksController.createTask);
+router.post('/', authJWT,  validateCreateTask, tasksController.createTask);
 
 export default router;

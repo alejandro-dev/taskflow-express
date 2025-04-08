@@ -7,6 +7,7 @@ service UserService {
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc VerifyAccount(VerifyAccountRequest) returns (VerifyAccountResponse);
+  rpc VerifyAccessToken(VerifyAccessTokenRequest) returns (VerifyAccessTokenResponse);
 }
 
 // Message for the body of the request for getting a user
@@ -49,6 +50,16 @@ message VerifyAccountRequest {
 message VerifyAccountResponse {
   string status = 1;
   string message = 2;
+}
+
+// Message for the body of the request for verifying an token
+message VerifyAccessTokenRequest {
+  string token = 1;
+}
+
+// Message for the response of the account token
+message VerifyAccessTokenResponse {
+  string status = 1;
 }
 
 // Definition of the user message

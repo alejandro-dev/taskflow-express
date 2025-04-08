@@ -9,6 +9,7 @@ import { LogsService } from "./logs-service";
 import { QueuesEnum } from "../enums/queues-enums";
 import { QueueService } from "./queue-service";
 import { NotificationService } from "./notifications-service";
+import { signToken } from "../utils/VerifyAccessToken";
 
 export class AuthService {    
    private userRepository: UserRepository;
@@ -138,6 +139,30 @@ export class AuthService {
          this.logsService.sendLogs(QueuesEnum.LOGS, requestId || uuidv4(), 'auth', user._id.toString(), 'auth.verify-account', 'User verified');
 
          return { status: 'success', message: 'User verified', user };
+
+      } catch (error: any) {
+         throw error;
+      }
+   }
+
+   /**
+    * 
+    * @description Verify access token
+    * 
+    * @param {Object} userData - User data to verify access token
+    * @param {string} userData.token - Token to verify access token
+    * @returns {Promise<Object>} A promise that resolves with the user verification response.
+    */
+   verifyAccessTokenService = async (userData: IUserProto["user"]["VerifyAccessTokenRequest"]): Promise<object> => {
+      try {
+         
+         //Extract token from request
+         const { token } = userData;
+
+         // Check if token is valid
+         const review = signToken(token);
+
+         return { status: 'success', message: 'User verified', review };
 
       } catch (error: any) {
          throw error;

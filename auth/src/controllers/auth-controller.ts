@@ -68,6 +68,15 @@ export class AuthController {
       }
    }
 
+   /**
+    * 
+    * @description Verify account
+    * 
+    * @param {grpc.ServerUnaryCall<IUserProto["user"]["VerifyAccountRequest"], IUserProto["user"]["VerifyAccountResponse"]>} call - The gRPC request call containing verify account request.
+    * @param {grpc.sendUnaryData<IUserProto["user"]["VerifyAccountResponse"]>} callback - The gRPC callback function to return a response.
+    * 
+    * @returns {Promise<void>} - A promise that resolves when the verify account request is completed.
+    */
    verifyAccount = async (
       call: grpc.ServerUnaryCall<IUserProto["user"]["VerifyAccountRequest"], IUserProto["user"]["VerifyAccountResponse"]>, 
       callback: grpc.sendUnaryData<IUserProto["user"]["VerifyAccountResponse"]>
@@ -83,6 +92,32 @@ export class AuthController {
          //this.logsService.sendLogs(QueuesEnum.LOGS, call.request.requestId || uuidv4(), 'auth', call.request.email.toString(), 'auth.verify', error.message, error);
 
          callback(error, null);
+      }
+   }
+
+   /**
+    * 
+    * @description Verify access token
+    * 
+    * @param {grpc.ServerUnaryCall<IUserProto["user"]["VerifyAccessTokenRequest"], IUserProto["user"]["VerifyAccessTokenResponse"]>} call - The gRPC request call containing verify access token request.
+    * @param {grpc.sendUnaryData<IUserProto["user"]["VerifyAccessTokenResponse"]>} callback - The gRPC callback function to return a response.
+    * 
+    * @returns {Promise<void>} - A promise that resolves when the verify access token request is completed.
+    */
+   verifyAccessToken = async (
+      call: grpc.ServerUnaryCall<IUserProto["user"]["VerifyAccessTokenRequest"], IUserProto["user"]["VerifyAccessTokenResponse"]>,
+      callback: grpc.sendUnaryData<IUserProto["user"]["VerifyAccessTokenResponse"]>
+   ): Promise<void> => {   
+      try {
+         // Check if the token is valid
+         const response = await this.authService.verifyAccessTokenService(call.request) as IUserProto["user"]["VerifyAccessTokenResponse"];
+
+         // Return response
+         callback(null, response);
+
+      } catch (error: any) {
+         callback(error, null);
+         
       }
    }
 }
