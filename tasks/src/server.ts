@@ -1,8 +1,12 @@
 import * as grpc from "@grpc/grpc-js";
+import dotenv from "dotenv";
 import { TasksService } from "./services/tasks-service";
 import { TasksController } from "./controllers/tasks-controller";
 import taskProto from "./grpc/tasks-loader";
 import { TasksRepository } from "./repository/tasks-repository";
+
+// Hability to file .env
+dotenv.config();
 
 // import { AuthService } from "./services/auth-service";
 // import { AuthController } from "./controllers/auth-controller";
@@ -21,7 +25,7 @@ server.addService(taskProto.task.TaskService.service,{
 });
 
 server.bindAsync(
-   "0.0.0.0:50052",
+   "0.0.0.0:" + process.env.GRPC_PORT,
    grpc.ServerCredentials.createInsecure(),
    (err, port) => {
       if (err) {

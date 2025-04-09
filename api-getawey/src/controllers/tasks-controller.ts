@@ -3,15 +3,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { LogsService } from "../services/logs-service";
 import { TasksService } from "../services/tasks-service";
 import { convertGrpcErrorToHttp } from '../utils/errorHandler';
+import { QueuesEnum } from '../enums/queues-enums'; 
 
 export class TasksController {
    private tasksService = new TasksService();
-   // private logsService = new LogsService();
+   private logsService = new LogsService();
 
    constructor(tasksService: TasksService, logsService: LogsService) {
       this.tasksService = tasksService;
-      // this.logsService = logsService;
-   }
+      this.logsService = logsService;
+   } 
+
    /**
     * @route POST /tasks
     * 
@@ -34,8 +36,11 @@ export class TasksController {
          // Generate a new request id
          const requestId = uuidv4();
 
+         // Add authorId to the request
+         req.body.authorId = req.user.id;
+
          // Request logs microservice to log the event
-         // this.logsService.logInfo(QueuesEnum.LOGS, requestId, 'api-getawey', email, 'auth.login', 'Login user request received', { email });
+         this.logsService.logInfo(QueuesEnum.LOGS, requestId, 'api-getawey', req.user.id, 'task.create', 'Task data request received', req.body);
 
          // Create new request to auth microservice
          const request = { ...req.body, requestId }

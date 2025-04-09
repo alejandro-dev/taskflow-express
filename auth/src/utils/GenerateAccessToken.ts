@@ -6,7 +6,7 @@ import { RolesEnum } from "../enums/roles-enums";
 interface dataRequest {
    email: string,
    id: mongoose.Types.ObjectId,
-   role_id: RolesEnum
+   role: RolesEnum
 }
 
 export const generateJWT = (data: dataRequest): string => { 
@@ -15,7 +15,7 @@ export const generateJWT = (data: dataRequest): string => {
    const token = jwt.sign({
       email: data.email, 
       id: data.id,
-      role_id: data.role_id
+      role: data.role
    }, 
    process.env.JWT_SECRET,
    {

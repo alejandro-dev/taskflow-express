@@ -60,11 +60,18 @@ message VerifyAccessTokenRequest {
 // Message for the response of the account token
 message VerifyAccessTokenResponse {
   string status = 1;
+  string message = 2;
+  UserAccessToken user = 4;
 }
 
 // Definition of the user message
 message User {
   string _id = 1;
   string email = 2;
-  string name = 3;
+}
+
+// Definiton response access token
+message UserAccessToken {
+  string id = 1;
+  string role = 2;
 }

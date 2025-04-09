@@ -15,6 +15,7 @@ server.addService(userProto.user.UserService.service,{
    login: authController.login.bind(authController),
    verifyAccount: authController.verifyAccount.bind(authController),
    verifyAccessToken: authController.verifyAccessToken.bind(authController),
+   existUser: authController.existUser.bind(authController),
 });
 
 server.bindAsync(

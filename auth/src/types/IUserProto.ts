@@ -12,6 +12,8 @@ export interface IUserProto {
       VerifyAccountResponse: VerifyAccountResponse;
       VerifyAccessTokenRequest: VerifyAccessTokenRequest;
       VerifyAccessTokenResponse: VerifyAccessTokenResponse;
+      ExistUserRequest: ExistUserRequest;
+      ExistUserResponse: ExistUserResponse;
       User: IUser;
       UserService: {
          service: grpc.ServiceDefinition<any>;
@@ -63,4 +65,13 @@ interface VerifyAccessTokenRequest {
 
 interface VerifyAccessTokenResponse {
    status: string;
+}
+
+interface ExistUserRequest {
+   userId: string;
+}
+
+interface ExistUserResponse {
+   status: string;
+   message: string;
 }

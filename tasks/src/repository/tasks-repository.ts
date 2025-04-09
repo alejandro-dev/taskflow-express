@@ -4,7 +4,6 @@ import { ITaskProto } from "../types/ITaskProto";
 export class TasksRepository {
    async saveTask(task: ITaskProto["task"]["CreateTaskRequest"]): Promise<any> {
       try {
-         console.log('task', task);
          // Save task data
          return await Tasks.create({
             title: task.title,

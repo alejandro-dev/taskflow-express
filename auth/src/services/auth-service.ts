@@ -100,7 +100,7 @@ export class AuthService {
          const token = generateJWT({
             email: user.email,
             id: user._id,
-            role_id: user.role
+            role: user.role
          });
 
          // Log user loged
@@ -155,14 +155,29 @@ export class AuthService {
     */
    verifyAccessTokenService = async (userData: IUserProto["user"]["VerifyAccessTokenRequest"]): Promise<object> => {
       try {
-         
          //Extract token from request
          const { token } = userData;
 
          // Check if token is valid
-         const review = signToken(token);
+         const userDataAccessToken = signToken(token);
 
-         return { status: 'success', message: 'User verified', review };
+         return { status: 'success', message: 'User verified', user: userDataAccessToken };
+
+      } catch (error: any) {
+         throw error;
+      }
+   }
+
+   existUserService = async (userData: IUserProto["user"]["ExistUserRequest"]): Promise<object> => {
+      try {
+         //Extract token from request
+         const { userId } = userData;
+
+         // Check if exist user
+         const user = await this.userRepository.findUserById(userId);
+         if(!user) throw new GrpcError("User not found", grpc.status.NOT_FOUND);
+
+         return { status: 'success', message: 'Exist user' };
 
       } catch (error: any) {
          throw error;

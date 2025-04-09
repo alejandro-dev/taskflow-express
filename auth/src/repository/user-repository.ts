@@ -27,7 +27,7 @@ export class UserRepository {
             email: userData.email,
             name: { value: userData.name, verify: false },
             password: userData.password,
-            role_id: RolesEnum.USER,
+            role: RolesEnum.USER,
          });
 
          // Generate token for user to verify account
@@ -71,6 +71,24 @@ export class UserRepository {
    async findUserByToken(token: string): Promise<IUser | null> {
       try {
          return await User.findOne({ token });
+
+      } catch (error) {
+         // Handle error
+         throw new Error("Error al obtener usuario");
+      }
+   }
+
+   /**
+    * 
+    * @description Find a user by user id
+    * 
+    * @param {string} userId - User id to find user
+    *
+    * @returns {Promise<IUser | null>} A promise that resolves with the user data.
+    */
+   async findUserById(userId: string): Promise<IUser | null> {
+      try {
+         return await User.findById(userId);
 
       } catch (error) {
          // Handle error

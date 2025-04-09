@@ -16,6 +16,7 @@ message CreateTaskRequest {
    string dueDate = 5;
    string status = 6;
    string priority = 7;
+   string requestId = 8;
 }
 
 // Message for the response of the user creation

@@ -4,13 +4,13 @@ import { GrpcError } from "./GrpcError";
 
 export const signToken = (token: string) => {
    try{
-      let reviewToken = jwt.verify(token, process.env.JWT_SECRET!);
-      console.log(reviewToken);
-      // Validar que reviewToken sea un JwtPayload y si es un token válido pero hay algún error
-      if (typeof reviewToken !== 'object' || reviewToken === null) throw new GrpcError("Invalid token", grpc.status.UNAUTHENTICATED);
+      let userData = jwt.verify(token, process.env.JWT_SECRET!);
 
-      return token; 
-      
+      // Validar que reviewToken sea un JwtPayload y si es un token válido pero hay algún error
+      if (typeof userData !== 'object' || userData === null) throw new GrpcError("Invalid token", grpc.status.UNAUTHENTICATED);
+
+      return { id: userData.id, role: userData.role }; 
+       
    }catch (error) {
       throw new GrpcError("Invalid token", grpc.status.UNAUTHENTICATED);
    }  

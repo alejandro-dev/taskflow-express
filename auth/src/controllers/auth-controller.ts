@@ -120,4 +120,21 @@ export class AuthController {
          
       }
    }
+
+   existUser = async (
+      call: grpc.ServerUnaryCall<IUserProto["user"]["ExistUserRequest"], IUserProto["user"]["ExistUserResponse"]>,
+      callback: grpc.sendUnaryData<IUserProto["user"]["ExistUserResponse"]>
+   ) => {
+      try {
+         // Call the auth service
+         const response = await this.authService.existUserService(call.request) as IUserProto["user"]["ExistUserResponse"];
+
+         // Return response
+         callback(null, response);
+
+      } catch (error: any) {
+         callback(error, null);
+         
+      }
+   }
 }
